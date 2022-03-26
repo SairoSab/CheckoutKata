@@ -2,7 +2,11 @@ import unittest
 
 class Supermarket(unittest.TestCase):
     def __init__(self) -> None:
-        self.totalPrice = 0
+        self.itemCount = {}
+        self.itemDiscount = {
+            "A" : 3,
+            "B" : 2
+        }
         self.itemPrice = { 
             "A" : 50,
             "B" : 30,
@@ -10,38 +14,35 @@ class Supermarket(unittest.TestCase):
             "D" : 15
         }
         self.specialPrice = {
-            "A" : 30,
-            "B" : 15
+            "A" : 130,
+            "B" : 45
         }
-        self.rawCart = []
-        self.itemA = 0
-        self.itemB = 0
+        self.cart = []
 
     def addItem(self, item):
-        self.rawCart.append(item)
-        if item == "B":
-            self.itemB = self.itemB + 1
-        elif item == "A":
-            self.itemA = self.itemA + 1
+        self.cart.append(item)
+
+    def itemCounts(self):
+        self.itemCount = {
+            "A" : 0,
+            "B" : 0,
+            "C" : 0,
+            "D" : 0
+        }
+        for item in self.cart:
+            self.itemCount[item] += 1
 
     def getPrice(self):
         price = 0
-        for item in self.rawCart:
-            itemPrice = self.getItemPrice(item)
-            price += itemPrice
-        self.itemA = 0
-        self.itemB = 0
+        self.itemCounts()
+        for item in self.itemCount:
+            if item in self.itemDiscount:
+                discountedPrice = int(self.itemCount[item] / self.itemDiscount[item]) * self.specialPrice[item]
+                normalPrice = (self.itemCount[item] % self.itemDiscount[item]) * self.itemPrice[item]
+                price += discountedPrice + normalPrice
+            else:
+                price += self.itemCount[item] * self.itemPrice[item]
         return price
-
-    def getItemPrice(self, item):
-        finalPrice = self.itemPrice[item]
-        if self.itemB >= 2:
-            finalPrice = self.specialPrice[item]
-            self.itemB = self.itemB - 2
-        elif self.itemA >= 3:
-            finalPrice = self.specialPrice[item]
-            self.itemA = self.itemA - 3
-        return finalPrice
 
 class test_supermarket (unittest.TestCase):
     def test_item_A_returns_price_of_50(self):
@@ -124,6 +125,7 @@ class test_supermarket (unittest.TestCase):
         cartPrice = supermarket.getPrice()
 
         self.assertEqual(totalPrice, cartPrice)
+
     def test_adds_four_items_of_A_type_with_one_discount(self):
         supermarket = Supermarket()
         item = "A"
@@ -136,6 +138,7 @@ class test_supermarket (unittest.TestCase):
         cartPrice = supermarket.getPrice()
 
         self.assertEqual(totalPrice, cartPrice)
+
     def test_adds_six_items_of_A_type_with_two_discounts(self):
         supermarket = Supermarket()
         item = "A"
@@ -150,6 +153,7 @@ class test_supermarket (unittest.TestCase):
         cartPrice = supermarket.getPrice()
 
         self.assertEqual(totalPrice, cartPrice)
+
     def test_adds_a_cart_of_four_different_types_with_various_discounts(self):
         supermarket = Supermarket()
         firstItem = "A"
@@ -169,6 +173,52 @@ class test_supermarket (unittest.TestCase):
         supermarket.addItem(secondItem)
         supermarket.addItem(thirdItem)
         supermarket.addItem(firstItem)
+        supermarket.addItem(forthItem)
+        cartPrice = supermarket.getPrice()
+
+        self.assertEqual(totalPrice, cartPrice)
+
+    def test_adds_a_cart_of_four_different_types_with_various_discounts2(self):
+        supermarket = Supermarket()
+        firstItem = "A"
+        secondItem = "B"
+        thirdItem = "C"
+        forthItem = "D"
+        totalPrice = 375
+
+        supermarket.addItem(firstItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(50, cartPrice)
+        supermarket.addItem(firstItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(100, cartPrice)
+        supermarket.addItem(secondItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(130, cartPrice)
+        supermarket.addItem(thirdItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(150, cartPrice)
+        supermarket.addItem(firstItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(180, cartPrice)
+        supermarket.addItem(forthItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(195, cartPrice)
+        supermarket.addItem(firstItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(245, cartPrice)
+        supermarket.addItem(firstItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(295, cartPrice)
+        supermarket.addItem(secondItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(310, cartPrice)
+        supermarket.addItem(thirdItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(330, cartPrice)
+        supermarket.addItem(firstItem)
+        cartPrice = supermarket.getPrice()
+        self.assertEqual(360, cartPrice)
         supermarket.addItem(forthItem)
         cartPrice = supermarket.getPrice()
 
